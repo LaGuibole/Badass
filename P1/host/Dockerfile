@@ -5,7 +5,7 @@ FROM alpine:latest
 RUN apk update && apk add --no-cache \
 	busybox-extras \
 	iputils \
-	tcp-dump \
+	tcpdump \
 	nano
 
 CMD ["/bin/sh"]
