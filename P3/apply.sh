@@ -1,20 +1,9 @@
 #!/bin/bash
 
-MODE=${1:-dynamic}
-NO_FORMAT=$'\033[0m'
-RED=$'\033[38;5;124m'
-F_BOLD=$'\033[1m'
-PURPLE=$'\033[38;5;105m'
-
-if [[ "$MODE" != "static" && "$MODE" != "dynamic" ]]; then
-    echo "${F_BOLD}${RED}[ERROR] Usage: $0 [static|dynamic]${NO_FORMAT}"
-    exit 1
-fi
-
 running=$(docker ps -q)
 
 if [[ -z "$running" ]]; then
-    echo "${F_BOLD}${RED}[ERROR] No running containers${NO_FORMAT}"
+    echo "[ERROR] No running containers"
     exit 1
 fi
 
@@ -27,24 +16,33 @@ for cid in $running; do
     type="${tmp%%-*}"
 
     case "$type" in
+        rr)
+            cmd="./router/rr-${id}-config.sh"
+            ;;
         router)
-            cmd="./router/router-${id}-config-${MODE}.sh"
+            cmd="./router/router-${id}-config.sh"
             ;;
         host)
             cmd="./host/host-${id}-config.sh"
             ;;
         *)
-            echo "${F_BOLD}${PURPLE}[INFO] Skipping unknown container: $hostname${NO_FORMAT}"
+            echo "[INFO] Skipping unknown container: $hostname"
             continue
             ;;
     esac
 
-    echo "${F_BOLD}${PURPLE}[INFO] Applying $cmd to $hostname${NO_FORMAT}"
+    echo "[INFO] Applying $cmd to $hostname"
 
     if [[ ! -f "$cmd" ]]; then
-        echo "${F_BOLD}${RED}[ERROR] Missing config file: $cmd${NO_FORMAT}"
+        echo "[ERROR] Missing config file: $cmd"
         continue
     fi
 
     docker exec -i "$cid" sh < "$cmd"
+
+    if [[ $? -eq 0 ]]; then
+        echo "[SUCCESS] Applied $cmd to $hostname"
+    else
+        echo "[ERROR] Failed applying $cmd to $hostname"
+    fi
 done

@@ -1,6 +1,4 @@
-.PHONY: static dynamic
+.PHONY: p3
 
-static:
-	@bash ./apply.sh static
-dynamic:
-	@bash ./apply.sh dynamic
+p3:
+	./apply.sh

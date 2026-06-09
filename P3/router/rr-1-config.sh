@@ -44,6 +44,7 @@ router bgp 1
 	exit-address-family
 exit
 router ospf
-	network 0.0.0.0/0 area 0
+	network 10.1.1.0/24 area 0
+	network 1.1.1.0/24 area 0
 exit
 EOF

@@ -1,9 +1,11 @@
-ip link replace name vxlan10 type vxlan id 10 dev eth0 dstport 4789
+(ip link del vxlan10 2>/dev/null || true)
+ip link add name vxlan10 type vxlan id 10 dev eth0 dstport 4789
 ip link set dev vxlan10 up
-ip link replace name br0 type bridge
+(ip link del br0 2>/dev/null || true)
+ip link add name br0 type bridge
 ip link set dev br0 up
-ip link set eth1 master br0
-ip link set vxlan10 master br0
+brctl addif br0 eth1
+brctl addif br0 vxlan10
 
 vtysh << EOF
 configure terminal
@@ -17,6 +19,7 @@ interface lo
 	ip ospf area 0
 exit
 router bgp 1
+	bgp router-id 1.1.1.2
 	neighbor 1.1.1.1 remote-as 1
 	neighbor 1.1.1.1 update-source lo
 	address-family l2vpn evpn
