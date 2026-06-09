@@ -1,16 +1,20 @@
 #!/bin/bash
 
 MODE=${1:-dynamic}
+NO_FORMAT=$'\033[0m'
+RED=$'\033[38;5;124m'
+F_BOLD=$'\033[1m'
+PURPLE=$'\033[38;5;105m'
 
 if [[ "$MODE" != "static" && "$MODE" != "dynamic" ]]; then
-    echo "Usage: $0 [static|dynamic]"
+    echo "${F_BOLD}${RED}[ERROR] Usage: $0 [static|dynamic]${NO_FORMAT}"
     exit 1
 fi
 
 running=$(docker ps -q)
 
 if [[ -z "$running" ]]; then
-    echo "No running containers"
+    echo "${F_BOLD}${RED}[ERROR] No running containers${NO_FORMAT}"
     exit 1
 fi
 
@@ -30,15 +34,15 @@ for cid in $running; do
             cmd="./host/host-${id}-config.sh"
             ;;
         *)
-            echo "Skipping unknown container: $hostname"
+            echo "${F_BOLD}${PURPLE}[INFO] Skipping unknown container: $hostname${NO_FORMAT}"
             continue
             ;;
     esac
 
-    echo "Applying $cmd to $hostname"
+    echo "${F_BOLD}${PURPLE}[INFO] Applying $cmd to $hostname${NO_FORMAT}"
 
     if [[ ! -f "$cmd" ]]; then
-        echo "Missing config file: $cmd"
+        echo "${F_BOLD}${RED}[ERROR] Missing config file: $cmd${NO_FORMAT}"
         continue
     fi
 
