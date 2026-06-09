@@ -41,7 +41,7 @@ router bgp 1
 	address-family l2vpn evpn
 		neighbor DYNAMIC activate
 		neighbor DYNAMIC route-reflector-client
-	exit address-family
+	exit-address-family
 exit
 router ospf
 	network 0.0.0.0/0 area 0
