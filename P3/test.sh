@@ -7,11 +7,12 @@ if [[ -z "$running" ]]; then
     exit 1
 fi
 
-for cid in $running; do
+apply_config() {
+    local cid="$1"
+
     hostname=$(docker exec "$cid" hostname)
 
     id="${hostname##*-}"
-
     tmp="${hostname#*-}"
     type="${tmp%%-*}"
 
@@ -27,22 +28,42 @@ for cid in $running; do
             ;;
         *)
             echo "[INFO] Skipping unknown container: $hostname"
-            continue
+            return
             ;;
     esac
 
     echo "[INFO] Applying $cmd to $hostname"
 
-    if [[ ! -f "$cmd" ]]; then
+    [[ ! -f "$cmd" ]] && {
         echo "[ERROR] Missing config file: $cmd"
-        continue
-    fi
+        return
+    }
 
-    cat $cmd | docker exec -i "$cid" sh
+    cat "$cmd" | docker exec -i "$cid" sh
 
     if [[ $? -eq 0 ]]; then
         echo "[SUCCESS] Applied $cmd to $hostname"
     else
         echo "[ERROR] Failed applying $cmd to $hostname"
+    fi
+}
+
+echo "[INFO] Configuring Route Reflectors first..."
+
+for cid in $running; do
+    hostname=$(docker exec "$cid" hostname)
+
+    if [[ "$hostname" == badass-rr-* ]]; then
+        apply_config "$cid"
+    fi
+done
+sleep 5
+echo "[INFO] Configuring remaining nodes..."
+
+for cid in $running; do
+    hostname=$(docker exec "$cid" hostname)
+
+    if [[ "$hostname" != badass-rr-* ]]; then
+        apply_config "$cid"
     fi
 done
