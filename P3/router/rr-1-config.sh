@@ -15,9 +15,7 @@
 
 vtysh << EOF
 configure terminal
-! 1.
 no ipv6 forwarding
-! 2. - 3. - 4.
 interface eth0
 	ip address 10.1.1.1/30
 exit
@@ -27,13 +25,10 @@ exit
 interface eth2
 	ip address 10.1.1.9/30
 exit
-! 5.
 interface lo
 	ip address 1.1.1.1/32
 exit
-!6.x
 router bgp 1
-	bgp router-id 1.1.1.1
 	neighbor DYNAMIC peer-group
 	neighbor DYNAMIC remote-as 1
 	neighbor DYNAMIC update-source lo
@@ -44,7 +39,6 @@ router bgp 1
 	exit-address-family
 exit
 router ospf
-	network 10.1.1.0/24 area 0
-	network 1.1.1.0/24 area 0
+	network 0.0.0.0/0 area 0
 exit
 EOF

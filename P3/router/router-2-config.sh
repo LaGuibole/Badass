@@ -19,7 +19,6 @@ interface lo
 	ip ospf area 0
 exit
 router bgp 1
-	bgp router-id 1.1.1.2
 	neighbor 1.1.1.1 remote-as 1
 	neighbor 1.1.1.1 update-source lo
 	address-family l2vpn evpn
